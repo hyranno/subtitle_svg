@@ -1,0 +1,17 @@
+{
+	"name": "subtitle_svg",
+	"dockerComposeFile": "compose.yml",
+	"features": {
+		"ghcr.io/devcontainers/features/git": {},
+		"ghcr.io/devcontainers/features/node": {"version": "stable"}
+	},
+    "service": "app",
+    "workspaceFolder": "/workspace",
+	"overrideCommand": true,
+	"customizations": {
+		"vscode": {
+			"extensions": [
+			]
+		}
+	}
+}
