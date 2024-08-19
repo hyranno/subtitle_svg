@@ -17,7 +17,6 @@
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^22.1.0",
-    "@types/svg.js": "^0.0.17",
     "@types/svgdom": "^0.1.2",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.4",

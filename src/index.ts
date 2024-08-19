@@ -1,12 +1,19 @@
-
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import * as path from 'node:path';
 
-import { createSVGWindow } from 'svgdom'
-import { SVG, registerWindow, Dom } from '@svgdotjs/svg.js'
-let window = createSVGWindow()
-let document = window.document
-registerWindow(window, document)
+import { createSVGWindow } from 'svgdom';
+import { registerWindow, SVG, Dom, Text, Element } from '@svgdotjs/svg.js';
+
+let window = createSVGWindow();
+let document = window.document;
+registerWindow(window, document);
+
+function* idGen(): Generator<number, never, never> {
+  for (var i=0; true; i++) {
+    yield i;
+  }
+}
+let idItr = idGen();
 
 
 enum Style {
@@ -20,12 +27,12 @@ interface Subtitle {
 }
 type InputList = {
   clips: Subtitle[],
-}
+};
 
 interface ActorSetting {
   color: string,
 }
-type ActorSettingMap = {[actor: string]: ActorSetting}
+type ActorSettingMap = {[actor: string]: ActorSetting};
 
 
 function main() {
@@ -45,12 +52,36 @@ function main() {
 
 function generateSvg(sub: Subtitle, actorSettings: ActorSettingMap): Dom {
   let draw = SVG(document.documentElement);
-  return draw;
+  let container = SVG("<g />").attr("stroke", "none").transform({translate: [80, 40]});
+  let setting = actorSettings[sub.actor];
+  let text = new Text().text(sub.text).scale(4);
+  let elems = [
+    generateDilatedText(text.clone(), "#000", 2.0),
+    generateDilatedText(text.clone(), setting.color, 1.5),
+    generateDilatedText(text.clone(), "#fff", 1.0),
+    text.fill(setting.color),
+  ].flat();
+  elems.forEach(elem => container.add(elem));
+  return draw.add(container);
+}
+
+function generateDilatedText(text: Text, color: string, radius: number): Element[] {
+  let filter = generateDilateFilter(radius);
+  let textElem = text.fill(color).attr("filter", `url(#${filter.id()})`);
+  return [textElem, filter];
+}
+
+function generateDilateFilter(radius: number): Element {
+  let filterId = "filter" + idItr.next().value;
+  let filter = SVG("<filter />").id(filterId);
+  let dilation = SVG("<feMorphology />").attr("operator", "dilate").attr("radius", radius);
+  filter.add(dilation);
+  return filter;
 }
 
 function loadSubtitles(filepath: string): Subtitle[] {
   let data = JSON.parse(readFileSync(filepath, "utf8")) as InputList;
-  return data.clips
+  return data.clips;
 }
 function loadActorSettings(filepath: string): ActorSettingMap {
   return JSON.parse(readFileSync(filepath, "utf8")) as ActorSettingMap;
