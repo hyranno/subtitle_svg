@@ -16,14 +16,14 @@ function* idGen(): Generator<number, never, never> {
 let idItr = idGen();
 
 
-enum Style {
-  None = "None",
+enum Mood {
+  Neutral = "Neutral",
 }
 interface Subtitle {
   actor: string,
   file: string,
   text: string,
-  style: Style,
+  mood: Mood,
 }
 type InputList = {
   clips: Subtitle[],
